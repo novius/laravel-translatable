@@ -1,0 +1,64 @@
+{
+    "name": "novius/laravel-translatable",
+    "description": "A Laravel Eloquent model trait for translatable resource",
+    "keywords": [
+        "laravel",
+        "laravel-translatable",
+        "translatable",
+        "translation",
+        "eloquent"
+    ],
+    "license": "AGPL-3.0-or-later",
+    "homepage": "https://github.com/novius/laravel-translatable",
+    "type": "library",
+    "support": {
+        "issues": "https://github.com/novius/laravel-translatable/issues",
+        "source": "https://github.com/novius/laravel-translatable"
+    },
+    "authors": [
+        {
+            "name": "Novius Agency",
+            "email": "team-developpeurs@novius.com",
+            "homepage": "https://www.novius.com"
+        }
+    ],
+    "require": {
+        "php": ">=8.1",
+        "illuminate/support": "^8.0 || ^9.0 || ^10.0",
+        "illuminate/database": "^8.0 || ^9.0 || ^10.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^8.0",
+        "laravel/pint": "^1.10",
+        "pestphp/pest": "^1.10",
+        "phpunit/phpunit": "^9.0|^10.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Novius\\LaravelTranslatable\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Novius\\LaravelTranslatable\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/pest --colors=always",
+        "cs-fix": "./vendor/bin/pint -v",
+        "lint": "@composer cs-fix -- --test"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Novius\\LaravelTranslatable\\LaravelTranslatableServiceProvider"
+            ]
+        }
+    }
+}
