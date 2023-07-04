@@ -2,6 +2,8 @@
 
 namespace Novius\LaravelTranslatable\Traits;
 
+use Novius\LaravelTranslatable\Exceptions\TranslatableException;
+
 /**
  * @property-read \Illuminate\Database\Eloquent\Collection<int, static> $translations
  * @property-read int|null $translations_count
@@ -25,10 +27,10 @@ trait Translatable
                 ->exists();
 
             if ($otherPageAlreadyExists) {
-                throw new \RuntimeException(trans('translatable::messages.already_translated'));
+                throw new TranslatableException(trans('translatable::messages.already_translated'));
             }
         } elseif ($this->{$localeColumn} === $locale) {
-            throw new \RuntimeException(trans('translatable::messages.already_translated'));
+            throw new TranslatableException(trans('translatable::messages.already_translated'));
         }
 
         $localeParentId = $this->{$localeParentIdColumn} ?? $this->{$this->getKeyName()};
@@ -44,14 +46,14 @@ trait Translatable
 
         if (! $translatedItem->save()) {
             $this->getConnection()->rollBack();
-            throw new \RuntimeException(trans('translatable::messages.error_during_translation'));
+            throw new TranslatableException(trans('translatable::messages.error_during_translation'));
         }
 
         if (empty($this->{$localeParentIdColumn})) {
             $this->{$localeParentIdColumn} = $localeParentId;
             if (! $this->save()) {
                 $this->getConnection()->rollBack();
-                throw new \RuntimeException(trans('translatable::messages.error_during_translation'));
+                throw new TranslatableException(trans('translatable::messages.error_during_translation'));
             }
         }
 
