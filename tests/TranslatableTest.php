@@ -2,8 +2,8 @@
 
 namespace Novius\LaravelTranslatable\Tests;
 
+use Novius\LaravelTranslatable\Exceptions\TranslatableException;
 use Novius\LaravelTranslatable\Tests\Models\TranslatableModel;
-use RuntimeException;
 
 class TranslatableTest extends TestCase
 {
@@ -29,6 +29,7 @@ class TranslatableTest extends TestCase
         $this->assertCount(2, $model->fresh()->translations);
     }
 
+    /** @test */
     public function a_model_cant_be_translate_in_same_locale()
     {
         $model = TranslatableModel::factory()->create([
@@ -36,11 +37,12 @@ class TranslatableTest extends TestCase
             'title' => 'Français',
         ]);
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(TranslatableException::class);
 
         $model->translate('fr');
     }
 
+    /** @test */
     public function a_model_cant_have_multiple_translation_in_same_locale()
     {
         $model = TranslatableModel::factory()->create([
@@ -50,8 +52,31 @@ class TranslatableTest extends TestCase
 
         $model->translate('en');
 
-        $this->expectException(RuntimeException::class);
+        $this->expectException(TranslatableException::class);
 
         $model->translate('en');
+    }
+
+    /** @test */
+    public function a_model_can_have_no_translation()
+    {
+        $model1 = TranslatableModel::factory()->create([
+            'locale' => 'fr',
+            'title' => 'Français',
+        ]);
+
+        $model2 = TranslatableModel::factory()->create([
+            'locale' => 'fr',
+            'title' => 'Français alt',
+        ]);
+
+        $model3 = TranslatableModel::factory()->create([
+            'locale' => 'en',
+            'title' => 'English',
+        ]);
+
+        $this->assertCount(0, $model1->fresh()->translations);
+        $this->assertCount(0, $model2->fresh()->translations);
+        $this->assertCount(0, $model3->fresh()->translations);
     }
 }

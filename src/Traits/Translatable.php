@@ -22,8 +22,8 @@ trait Translatable
 
         if (! empty($this->{$localeParentIdColumn})) {
             $otherPageAlreadyExists = $this->query()
-                ->where('locale', $locale)
-                ->where('locale_parent_id', $this->{$localeParentIdColumn})
+                ->where($localeColumn, $locale)
+                ->where($localeParentIdColumn, $this->{$localeParentIdColumn})
                 ->exists();
 
             if ($otherPageAlreadyExists) {
@@ -39,8 +39,8 @@ trait Translatable
         foreach ($translateAttributes as $translateAttribute => $value) {
             $translatedItem->{$translateAttribute} = $value;
         }
-        $translatedItem->locale = $locale;
-        $translatedItem->locale_parent_id = $localeParentId;
+        $translatedItem->{$localeColumn} = $locale;
+        $translatedItem->{$localeParentIdColumn} = $localeParentId;
 
         $this->getConnection()->beginTransaction();
 
