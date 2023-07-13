@@ -2,6 +2,7 @@
 
 namespace Novius\LaravelTranslatable\Traits;
 
+use Illuminate\Database\Eloquent\Model;
 use Novius\LaravelTranslatable\Exceptions\TranslatableException;
 
 /**
@@ -10,6 +11,54 @@ use Novius\LaravelTranslatable\Exceptions\TranslatableException;
  */
 trait Translatable
 {
+    protected ?Model $parentToSave = null;
+
+    /**
+     * Boot the translatable trait for a model.
+     */
+    public static function bootTranslatable(): void
+    {
+        static::creating(static function (Model $model) {
+            /** @var Model&Translatable $model */
+            $localeColumn = $model->getLocaleColumn();
+            $localeParentIdColumn = $model->getLocaleParentIdColumn();
+            $locale = $model->{$localeColumn};
+            $locale_parent_id = $model->{$localeParentIdColumn};
+
+            if ($locale_parent_id) {
+                $parent = $model::query()
+                    ->with('translations')
+                    ->where($model->getKeyName(), $locale_parent_id)
+                    ->first();
+                if ($parent === null) {
+                    $model->{$localeParentIdColumn} = null;
+                } else {
+                    $translation = $model->getTranslation($locale);
+                    if ($translation !== null) {
+                        throw new TranslatableException(trans('translatable::messages.already_translated'));
+                    }
+
+                    $model->{$localeParentIdColumn} = $parent->{$localeParentIdColumn} ?? $parent->{$model->getKeyName()};
+
+                    if (empty($parent->{$localeParentIdColumn})) {
+                        $model->parentToSave = $parent;
+                    }
+                }
+            }
+        });
+        static::created(static function (Model $model) {
+            /** @var Model&Translatable $model */
+            $localeParentIdColumn = $model->getLocaleParentIdColumn();
+
+            if ($model->parentToSave !== null) {
+                $model->parentToSave->{$localeParentIdColumn} = $model->{$localeParentIdColumn};
+                if (! $model->parentToSave->save()) {
+                    throw new TranslatableException(trans('translatable::messages.error_during_translation'));
+                }
+            }
+        });
+    }
+
     public function translations()
     {
         return $this->hasMany(static::class, $this->getLocaleParentIdColumn(), $this->getLocaleParentIdColumn());
