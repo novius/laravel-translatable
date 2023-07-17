@@ -3,6 +3,8 @@
 namespace Novius\LaravelTranslatable\Traits;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Novius\LaravelTranslatable\Exceptions\TranslatableException;
 
 /**
@@ -26,15 +28,15 @@ trait Translatable
             $locale_parent_id = $model->{$localeParentIdColumn};
 
             if ($locale_parent_id) {
-                $parent = $model::query()
-                    ->with('translations')
-                    ->where($model->getKeyName(), $locale_parent_id)
-                    ->first();
+                $parent = $model::find($locale_parent_id);
                 if ($parent === null) {
                     $model->{$localeParentIdColumn} = null;
                 } else {
-                    $translation = $model->getTranslation($locale);
+                    $translation = $model->getTranslation($locale, true);
                     if ($translation !== null) {
+                        if (in_array(SoftDeletes::class, class_uses_recursive($model)) && $translation->{$model->getDeletedAtColumn()}) {
+                            throw new TranslatableException(trans('translatable::messages.translation_deleted_exist'));
+                        }
                         throw new TranslatableException(trans('translatable::messages.already_translated'));
                     }
 
@@ -64,18 +66,26 @@ trait Translatable
         return $this->hasMany(static::class, $this->getLocaleParentIdColumn(), $this->getLocaleParentIdColumn());
     }
 
+    public function translationsWithDeleted()
+    {
+        if (in_array(SoftDeletes::class, class_uses_recursive($this))) {
+            return $this->hasMany(static::class, $this->getLocaleParentIdColumn(), $this->getLocaleParentIdColumn())->withoutGlobalScope(SoftDeletingScope::class);
+        }
+
+        return $this->translations();
+    }
+
     public function translate(string $locale, array $translateAttributes = []): static
     {
         $localeColumn = $this->getLocaleColumn();
         $localeParentIdColumn = $this->getLocaleParentIdColumn();
 
         if (! empty($this->{$localeParentIdColumn})) {
-            $otherPageAlreadyExists = $this->query()
-                ->where($localeColumn, $locale)
-                ->where($localeParentIdColumn, $this->{$localeParentIdColumn})
-                ->exists();
-
-            if ($otherPageAlreadyExists) {
+            $translation = $this->getTranslation($locale);
+            if ($translation !== null) {
+                if (in_array(SoftDeletes::class, class_uses_recursive($this)) && $translation->{$this->getDeletedAtColumn()}) {
+                    throw new TranslatableException(trans('translatable::messages.translation_deleted_exist'));
+                }
                 throw new TranslatableException(trans('translatable::messages.already_translated'));
             }
         } elseif ($this->{$localeColumn} === $locale) {
@@ -111,9 +121,11 @@ trait Translatable
         return $translatedItem;
     }
 
-    public function getTranslation(string $locale): static|null
+    public function getTranslation(string $locale, bool $withDeleted = false): ?static
     {
-        return $this->translations()->where($this->getLocaleColumn(), $locale)->first();
+        $translations = $withDeleted ? $this->translationsWithDeleted() : $this->translations();
+
+        return $translations->where($this->getLocaleColumn(), $locale)->first();
     }
 
     /**

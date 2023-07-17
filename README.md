@@ -54,8 +54,9 @@ class Post extends Model {
 
 This trait add :
 * A relation `translations` containing all translations of the model
+* A relation `translationsWithDeleted` containing all translations of the model, including those in trash if your model use SoftDelete trait 
 * A function `translate(string $locale, array $translateAttributes = [])` to translate a model in a new locale
-* A function `getTranslation(string $locale)` returning the translated model in specified locale or null if it doesn't exist. 
+* A function `getTranslation(string $locale, bool $withDeleted = false)` returning the translated model in specified locale or null if it doesn't exist. 
 
 ```php
 $post = new Post([
