@@ -36,6 +36,7 @@ class LaravelTranslatableServiceProvider extends ServiceProvider
         });
 
         Blueprint::macro('dropTranslatable', function ($columnLocale = 'locale', $columnParentId = 'locale_parent_id') {
+            $this->dropForeign($this->prefix.$this->table.'_'.$columnParentId.'_foreign');
             $this->dropColumn([$columnLocale, $columnParentId]);
         });
     }
