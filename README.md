@@ -78,6 +78,25 @@ $italianTranslation = $post->getTranslation('it');
 
 ```
 
+You can override the `translateAttributes` method of the trait if you want to translate some attributes of the model before saving:
+
+```php
+namespace App\Models;
+
+use \Illuminate\Database\Eloquent\Model;
+use Novius\LaravelTranslatable\Traits\Translatable;
+
+class Post extends Model {
+    use Translatable;
+
+    protected function translateAttributes($parent): void
+    {
+        $this->some_attribut = $parent->some_attribut.' translated';
+    }
+    ...
+}
+```
+
 ### Testing
 
 ```bash

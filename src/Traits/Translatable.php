@@ -45,6 +45,8 @@ trait Translatable
                     if (empty($parent->{$localeParentIdColumn})) {
                         $model->parentToSave = $parent;
                     }
+
+                    $model->translateAttributes($parent);
                 }
             }
         });
@@ -95,6 +97,7 @@ trait Translatable
         $localeParentId = $this->{$localeParentIdColumn} ?? $this->{$this->getKeyName()};
 
         $translatedItem = $this->replicate();
+        $translatedItem->translateAttributes($this);
         foreach ($translateAttributes as $translateAttribute => $value) {
             $translatedItem->{$translateAttribute} = $value;
         }
@@ -158,5 +161,10 @@ trait Translatable
     public function getQualifiedLocaleParentIdColumn(): string
     {
         return $this->qualifyColumn($this->getLocaleParentIdColumn());
+    }
+
+    protected function translateAttributes($parent): void
+    {
+        // To be implemented if you want to translate certain attributes
     }
 }
