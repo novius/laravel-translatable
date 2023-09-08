@@ -2,6 +2,7 @@
 
 namespace Novius\LaravelTranslatable\Traits;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -75,6 +76,11 @@ trait Translatable
         }
 
         return $this->translations();
+    }
+
+    public function scopeWithLocale(Builder $query, ?string $locale): Builder
+    {
+        return $query->where('locale', $locale);
     }
 
     public function translate(string $locale, array $translateAttributes = []): static
