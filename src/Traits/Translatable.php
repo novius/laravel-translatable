@@ -3,6 +3,7 @@
 namespace Novius\LaravelTranslatable\Traits;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -132,7 +133,11 @@ trait Translatable
 
     public function getTranslation(string $locale, bool $withDeleted = false): ?static
     {
-        $translations = $withDeleted ? $this->translationsWithDeleted() : $this->translations();
+        if ($this->{$this->getLocaleParentIdColumn()} === null) {
+            $translations = new Collection([$this]);
+        } else {
+            $translations = $withDeleted ? $this->translationsWithDeleted() : $this->translations();
+        }
 
         return $translations->where($this->getLocaleColumn(), $locale)->first();
     }
