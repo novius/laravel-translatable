@@ -10,7 +10,7 @@ class TranslatableTest extends TestCase
     /* --- Translatable Tests --- */
 
     /** @test */
-    public function a_model_can_be_translate()
+    public function a_model_can_be_translate(): void
     {
         $model = TranslatableModel::factory()->create([
             'locale' => 'fr',
@@ -30,7 +30,7 @@ class TranslatableTest extends TestCase
     }
 
     /** @test */
-    public function a_model_cant_be_translate_in_same_locale()
+    public function a_model_cant_be_translate_in_same_locale(): void
     {
         $model = TranslatableModel::factory()->create([
             'locale' => 'fr',
@@ -43,7 +43,7 @@ class TranslatableTest extends TestCase
     }
 
     /** @test */
-    public function a_model_cant_have_multiple_translation_in_same_locale()
+    public function a_model_cant_have_multiple_translation_in_same_locale(): void
     {
         $model = TranslatableModel::factory()->create([
             'locale' => 'fr',
@@ -58,7 +58,7 @@ class TranslatableTest extends TestCase
     }
 
     /** @test */
-    public function a_model_can_have_no_translation()
+    public function a_model_can_have_no_translation(): void
     {
         $model1 = TranslatableModel::factory()->create([
             'locale' => 'fr',

@@ -9,7 +9,7 @@ class TranslatableModelFactory extends Factory
 {
     protected $model = TranslatableModel::class;
 
-    public function definition()
+    public function definition(): array
     {
         return [];
     }

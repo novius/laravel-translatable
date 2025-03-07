@@ -2,6 +2,6 @@
 
 namespace Novius\LaravelTranslatable\Exceptions;
 
-class TranslatableException extends \Exception
-{
-}
+use Exception;
+
+class TranslatableException extends Exception {}

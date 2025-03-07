@@ -7,11 +7,9 @@ use Illuminate\Support\ServiceProvider;
 
 class LaravelTranslatableServiceProvider extends ServiceProvider
 {
-    public function register()
-    {
-    }
+    public function register(): void {}
 
-    public function boot()
+    public function boot(): void
     {
         $this->configureMacros();
         $this->loadTranslationsFrom(__DIR__.'/../lang', 'translatable');
@@ -21,7 +19,7 @@ class LaravelTranslatableServiceProvider extends ServiceProvider
         ]);
     }
 
-    protected function configureMacros()
+    protected function configureMacros(): void
     {
         Blueprint::macro('translatable', function ($columnLocale = 'locale', $columnParentId = 'locale_parent_id', $columnId = 'id') {
             $this->string($columnLocale, 20);
@@ -36,7 +34,7 @@ class LaravelTranslatableServiceProvider extends ServiceProvider
         });
 
         Blueprint::macro('dropTranslatable', function ($columnLocale = 'locale', $columnParentId = 'locale_parent_id') {
-            $this->dropForeign($this->prefix.$this->table.'_'.$columnParentId.'_foreign');
+            $this->dropForeign($this->getTable().'_'.$columnParentId.'_foreign');
             $this->dropColumn([$columnLocale, $columnParentId]);
         });
     }
