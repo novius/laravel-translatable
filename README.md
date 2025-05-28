@@ -22,6 +22,8 @@ You can install the package via composer:
 composer require novius/laravel-translatable
 ```
 
+You can publish lang files:
+
 ```bash
 php artisan vendor:publish --provider="Novius\Translatable\LaravelTranslatableServiceProvider" --tag=lang
 ```
@@ -51,13 +53,6 @@ use Novius\LaravelTranslatable\Traits\Translatable;
 class Post extends Model {
     use Translatable;
     ...
-
-    public static function availableLocales(): array {
-        return [
-            'fr' => 'Français',
-            'en' => 'English',        
-        ];       
-    }
 }
 ```
 
@@ -85,6 +80,27 @@ $englishTranslation = $post->getTranslation('en');
 // $italianTranslation is null
 $italianTranslation = $post->getTranslation('it');
 
+```
+
+You can override the `translatableConfig` method of the trait if you want to customize his behavior:
+
+```php
+namespace App\Models;
+
+use \Illuminate\Database\Eloquent\Model;
+use Novius\LaravelTranslatable\Traits\Translatable;
+
+class Post extends Model {
+    // ...
+    public function translatableConfig(): TranslatableModelConfig
+    {
+        return new TranslatableModelConfig(
+            ['fr', 'en'], // Restricted translations to specified locals
+            'locale', // The name of de `locale` column
+            'locale_parent_id' // The name of de `locale_parent_id` column
+        );
+    }
+}
 ```
 
 You can override the `translateAttributes` method of the trait if you want to translate some attributes of the model before saving:

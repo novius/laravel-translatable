@@ -1,15 +1,5 @@
 # [2.0.0]
 
-Le trait `Translatable` oblige maintenant à définir la méthode `availableLocales`. Elle doit renvoyer un tableau des locales autorisées sous la forme :
-```php
-
-class MyModel extends \Illuminate\Database\Eloquent\Model
-{
-    public static function availableLocales(): array {
-        return [
-            'fr' => 'Français',
-            'en' => 'English',        
-        ];       
-    }
-}
-```
+Introduction of the `translatableConfig` method on the `Translatable` trait. 
+The trait no longer detects the name of the `locale` and `local_parent_id` columns from `LOCALE` and `LOCAL_PARENT_ID` constants.
+The trait no longer contains `getLocaleColumn()`, `getLocaleParentIdColumn()`, `getQualifiedLocaleColumn()`, `getQualifiedLocaleParentIdColumn()` methods.

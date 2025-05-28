@@ -2,31 +2,22 @@
 
 namespace Novius\LaravelTranslatable\Tests;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Schema\Blueprint;
-use Novius\LaravelTranslatable\LaravelTranslatableServiceProvider;
+use Orchestra\Testbench\Concerns\WithWorkbench;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
 {
+    use WithWorkbench;
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        Factory::guessFactoryNamesUsing(
-            static function (string $modelName) {
-                return 'Novius\\LaravelTranslatable\\Tests\\Database\\Factories\\'.class_basename($modelName).'Factory';
-            }
-        );
-
         $this->setUpDatabase($this->app);
-    }
 
-    protected function getPackageProviders($app): array
-    {
-        return [
-            LaravelTranslatableServiceProvider::class,
-        ];
+        $this->artisan('lang:add', ['locales' => 'fr']);
+        $this->artisan('lang:add', ['locales' => 'en']);
     }
 
     public function getEnvironmentSetUp($app): void
