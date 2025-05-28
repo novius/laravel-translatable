@@ -16,6 +16,6 @@ class TranslatableModelConfig
         public string $locale_column = 'locale',
         public string $locale_parent_id_column = 'locale_parent_id'
     ) {
-        $this->available_locales = $available_locales ?? Locales::available()->pluck('code')->toArray();
+        $this->available_locales = $available_locales ?? Locales::installed()->pluck('code')->toArray();
     }
 }
