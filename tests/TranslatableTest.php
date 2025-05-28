@@ -3,7 +3,7 @@
 namespace Novius\LaravelTranslatable\Tests;
 
 use Novius\LaravelTranslatable\Exceptions\TranslatableException;
-use Novius\LaravelTranslatable\Tests\Models\TranslatableModel;
+use Workbench\App\Models\TranslatableModel;
 
 class TranslatableTest extends TestCase
 {

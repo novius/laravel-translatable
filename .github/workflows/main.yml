@@ -77,7 +77,7 @@ jobs:
             carbon: 2.*
             testbench: 9.*
 
-    name: phpstan - P${{ matrix.php-versions }} - L${{ matrix.laravel }}
+    name: test-php - P${{ matrix.php-versions }} - L${{ matrix.laravel }}
 
     steps:
       - uses: shivammathur/setup-php@v2

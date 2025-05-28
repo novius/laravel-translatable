@@ -36,7 +36,7 @@ trait Translatable
             $locale = $model->{$localeColumn};
             $locale_parent_id = $model->{$localeParentIdColumn};
 
-            if (! in_array($locale, $model::availableLocales(), true)) {
+            if (! array_key_exists($locale, $model::availableLocales())) {
                 throw new TranslatableException(trans('translatable::messages.locale_forbidden'));
             }
 

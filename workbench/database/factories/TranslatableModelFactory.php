@@ -1,9 +1,9 @@
 <?php
 
-namespace Novius\LaravelTranslatable\Tests\Database\Factories;
+namespace Workbench\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Novius\LaravelTranslatable\Tests\Models\TranslatableModel;
+use Workbench\App\Models\TranslatableModel;
 
 class TranslatableModelFactory extends Factory
 {
