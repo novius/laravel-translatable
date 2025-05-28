@@ -7,16 +7,12 @@
 
 ## Introduction
 
-A package for making Laravel Eloquent models "translatable" using 2 fields : locale and locale_parent_id.
+A package for making Laravel Eloquent models "translatable" using two fields: `locale` and `locale_parent_id`.
 
 ## Requirements
 
-* Laravel >= 10.0
+* Laravel >= 11.0
 * PHP >= 8.2
-
-> **NOTE**: These instructions are for Laravel >= 10.0 and PHP >= 8.2 If you are using prior version, please
-> see the [previous version's docs](https://github.com/novius/laravel-translatable/tree/0.x).
-
 
 ## Installation
 
@@ -55,15 +51,22 @@ use Novius\LaravelTranslatable\Traits\Translatable;
 class Post extends Model {
     use Translatable;
     ...
+
+    public static function availableLocales(): array {
+        return [
+            'fr' => 'Français',
+            'en' => 'English',        
+        ];       
+    }
 }
 ```
 
-This trait add :
+This trait adds:
 * A relation `translations` containing all translations of the model
 * A relation `translationsWithDeleted` containing all translations of the model, including those in trash if your model use SoftDelete trait 
 * A function `translate(string $locale, array $translateAttributes = [])` to translate a model in a new locale
 * A function `getTranslation(string $locale, bool $withDeleted = false)` returning the translated model in specified locale or null if it doesn't exist.
-* A scope `withLocale($locale)` on query
+* A scope `withLocale($locale)` on the query
 
 ```php
 $post = new Post([

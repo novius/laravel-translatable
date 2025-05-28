@@ -36,6 +36,10 @@ trait Translatable
             $locale = $model->{$localeColumn};
             $locale_parent_id = $model->{$localeParentIdColumn};
 
+            if (! in_array($locale, $model::availableLocales(), true)) {
+                throw new TranslatableException(trans('translatable::messages.locale_forbidden'));
+            }
+
             if ($locale_parent_id) {
                 $parent = $model::find($locale_parent_id);
                 if ($parent === null) {
@@ -184,6 +188,11 @@ trait Translatable
     {
         return $this->qualifyColumn($this->getLocaleParentIdColumn());
     }
+
+    /**
+     * @return list<string, string>
+     */
+    abstract public static function availableLocales(): array;
 
     protected function translateAttributes($parent): void
     {
