@@ -14,7 +14,7 @@ use Throwable;
 
 /**
  * @property-read Collection<int, static> $translations
- * @property-read int|null $translations_count
+ * @property-read Collection<int, static> $translationsWithDeleted
  *
  * @mixin Model
  * @mixin SoftDeletes
