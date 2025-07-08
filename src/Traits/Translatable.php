@@ -163,6 +163,26 @@ trait Translatable
         return $translations->where($this->translatableConfig()->locale_column, $locale)->first();
     }
 
+    /**
+     * @deprecated
+     */
+    public function getLocaleColumn(): string
+    {
+        trigger_error('getLocaleColumn() is deprecated since version 1.2 and will be removed in 2.0. Use translatableConfig()->locale_column instead.', E_USER_DEPRECATED);
+
+        return $this->translatableConfig()->locale_column;
+    }
+
+    /**
+     * @deprecated
+     */
+    public function getLocaleParentIdColumn(): string
+    {
+        trigger_error('getLocaleParentIdColumn() is deprecated since version 1.2 and will be removed in 2.0. Use translatableConfig()->locale_parent_id_column instead.', E_USER_DEPRECATED);
+
+        return $this->translatableConfig()->locale_parent_id_column;
+    }
+
     protected function translateAttributes($parent): void
     {
         // To be implemented if you want to translate certain attributes
