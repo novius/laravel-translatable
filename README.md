@@ -1,6 +1,6 @@
 # Laravel Translatable
 
-[![Novius CI](https://github.com/novius/laravel-publishable/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/novius/laravel-translatable/actions/workflows/main.yml)
+[![Novius CI](https://github.com/novius/laravel-translatable/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/novius/laravel-translatable/actions/workflows/main.yml)
 [![Packagist Release](https://img.shields.io/packagist/v/novius/laravel-translatable.svg?maxAge=1800&style=flat-square)](https://packagist.org/packages/novius/laravel-translatable)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](http://www.gnu.org/licenses/agpl-3.0)
 
@@ -11,8 +11,8 @@ A package for making Laravel Eloquent models "translatable" using two fields: `l
 
 ## Requirements
 
-* Laravel >= 11.0
-* PHP >= 8.2
+- Laravel: 11.x, 12.x
+- PHP: 8.2 – 8.5
 
 ## Installation
 
@@ -25,7 +25,7 @@ composer require novius/laravel-translatable
 You can publish lang files:
 
 ```bash
-php artisan vendor:publish --provider="Novius\Translatable\LaravelTranslatableServiceProvider" --tag=lang
+php artisan vendor:publish --provider="Novius\\LaravelTranslatable\\LaravelTranslatableServiceProvider" --tag=lang
 ```
 
 ## Usage
