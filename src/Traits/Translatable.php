@@ -160,6 +160,7 @@ trait Translatable
             $translations = $withDeleted ? $this->translationsWithDeleted() : $this->translations();
         }
 
+        // @phpstan-ignore-next-line
         return $translations->where($this->translatableConfig()->locale_column, $locale)->first();
     }
 

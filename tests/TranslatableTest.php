@@ -3,13 +3,14 @@
 namespace Novius\LaravelTranslatable\Tests;
 
 use Novius\LaravelTranslatable\Exceptions\TranslatableException;
+use PHPUnit\Framework\Attributes\Test;
 use Workbench\App\Models\TranslatableModel;
 
 class TranslatableTest extends TestCase
 {
     /* --- Translatable Tests --- */
 
-    /** @test */
+    #[Test]
     public function a_model_can_be_translate(): void
     {
         $model = TranslatableModel::factory()->create([
@@ -29,7 +30,7 @@ class TranslatableTest extends TestCase
         $this->assertCount(2, $model->fresh()->translations);
     }
 
-    /** @test */
+    #[Test]
     public function a_model_cant_be_translate_in_same_locale(): void
     {
         $model = TranslatableModel::factory()->create([
@@ -42,7 +43,7 @@ class TranslatableTest extends TestCase
         $model->translate('fr');
     }
 
-    /** @test */
+    #[Test]
     public function a_model_cant_have_multiple_translation_in_same_locale(): void
     {
         $model = TranslatableModel::factory()->create([
@@ -57,7 +58,7 @@ class TranslatableTest extends TestCase
         $model->translate('en');
     }
 
-    /** @test */
+    #[Test]
     public function a_model_can_have_no_translation(): void
     {
         $model1 = TranslatableModel::factory()->create([
