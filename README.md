@@ -11,7 +11,7 @@ A package for making Laravel Eloquent models "translatable" using two fields: `l
 
 ## Requirements
 
-- Laravel: 11.x, 12.x
+- Laravel: 10.x, 11.x, 12.x, 13.x
 - PHP: 8.2 – 8.5
 
 ## Installation
