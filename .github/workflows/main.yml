@@ -62,6 +62,8 @@ jobs:
         exclude:
           - laravel: 13.*
             php-versions: "8.2"
+          - laravel: 10.*
+            php-versions: "8.5"
 
     name: phpstan - P${{ matrix.php-versions }} - L${{ matrix.laravel }}
 
@@ -125,6 +127,8 @@ jobs:
         exclude:
           - laravel: 13.*
             php-versions: "8.2"
+          - laravel: 10.*
+            php-versions: "8.5"
 
     name: test - P${{ matrix.php-versions }} - L${{ matrix.laravel }}
 
