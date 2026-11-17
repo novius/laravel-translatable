@@ -7,50 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased](https://github.com/novius/laravel-translatable/compare/2.0.2...HEAD)
 
-### Added
-
-- The `originals()` scope and the `isOriginal()` method on the `Translatable` trait: the original models are those not
-  translated and the root of each group of translations, which holds its own key in the locale parent id column once
-  translated.
-- The lang files are published with the `lang` and `laravel-translatable-lang` tags: the `--tag=lang` documented in the
-  README published nothing.
-- A Laravel Boost skill, `laravel-translatable-development`, to help agents use the package in Laravel applications.
-- Common record and translations: the `HasCommonRecord` trait, on a translatable model whose data shared by all the
-  locales is held by a common record (`Product`), and the `IsCommonRecord` trait, on that common record
-  (`ProductCommon`). A translation created with its parent's key and no common record gets the one of its parent; all
-  the translations of a group share the same common record (or none), and a common record belongs to one group only,
-  otherwise saving throws a `TranslatableException`; an original created without common record gets the one returned
-  by the abstract `createCommonRecord()`; the common record is deleted when no model holds it any more (force
-  deleted, for a soft deletable model), unless `deletesCommonRecordWithLastTranslation()` returns `false`, and cannot be
-  deleted while it holds translations. The common record gives `translation($locale)` and `label()`, which reads the
-  attribute of the translations named by the abstract `commonRecordLabelAttribute()`. The `MakesTranslations`
-  factory trait makes a translation of a model, sharing its common record with `HasCommonRecord`
-  (`translationOf($parent, $locale)`).
-
-### Changed
-
-- `getTranslation()` reads the `translations` relation (`translationsWithDeleted` with `$withDeleted`), loaded by its first
-  call, instead of querying the database on each call: one query per model whatever the number of calls, none when the
-  relation is eager loaded. It does not throw a lazy loading violation when lazy loading is prevented.
-  **Upgrade note**: translations created, updated or deleted afterwards in the same request, by another instance, are
-  no longer seen. Call `unsetRelation('translations')` and `unsetRelation('translationsWithDeleted')` to read them again.
-
-### Fixed
-
-- `translate()` checks in the database, soft deleted translations included, that the locale is not already translated:
-  a soft deleted translation was only detected by the `creating` event, after the attributes were translated.
-- A model created as a translation unloads the `translations` and `translationsWithDeleted` relations copied by
-  `replicate()` from the model translated: they showed the group without it.
-
-- `translate()` unloads the `translations` and `translationsWithDeleted` relations of the model and of its new
-  translation: loaded before, they no longer showed the group of translations.
-- `translate()` rolls back its transaction on any exception, including those thrown by the `creating` event (a locale
-  not available, for example): the transaction was left open.
-- The `withLocale()` scope uses the locale column of `translatableConfig()`, qualified with the table name: it used an
-  unqualified `locale` column.
-- The deprecation messages of `getLocaleColumn()` and `getLocaleParentIdColumn()` announce their removal in 3.0: they
-  announced it in 2.0, where they were deprecated.
-
 ## [2.0.2](https://github.com/novius/laravel-translatable/compare/2.0.1...2.0.2) - 2026-05-11
 
 ### Added
