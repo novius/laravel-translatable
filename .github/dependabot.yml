@@ -16,3 +16,13 @@ updates:
       interval: "weekly"
     labels:
       - "dependencies"
+    # A library supports several versions of its dependencies: add the new version to the constraint, don't replace it
+    versioning-strategy: "widen"
+    ignore:
+      # Their version is set by the CI matrix for each Laravel version: a new major goes with a change of the matrix
+      - dependency-name: "pestphp/pest"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "orchestra/testbench"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "larastan/larastan"
+        update-types: ["version-update:semver-major"]
