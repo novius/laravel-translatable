@@ -1,4 +1,5 @@
 {
+    "$schema": "https://getcomposer.org/schema.json",
     "name": "novius/laravel-translatable",
     "description": "A Laravel Eloquent model trait for translatable resource",
     "keywords": [
@@ -10,7 +11,6 @@
     ],
     "license": "AGPL-3.0-or-later",
     "homepage": "https://github.com/novius/laravel-translatable",
-    "type": "library",
     "support": {
         "issues": "https://github.com/novius/laravel-translatable/issues",
         "source": "https://github.com/novius/laravel-translatable"
@@ -29,55 +29,61 @@
     },
     "require-dev": {
         "larastan/larastan": "^2.0 | ^3.1",
-        "laravel/pint": "^1.16",
         "laravel-lang/lang": "^15.0",
-        "orchestra/testbench": "^8.0.0 | ^9.12 | ^10.1 | ^11.0",
-        "pestphp/pest": "^2.0 | ^3.7"
+        "laravel/pint": "^1.21",
+        "orchestra/testbench": "^8.0 | ^9.12 | ^10.1 | ^11.0",
+        "pestphp/pest": "^2.0 | ^3.7",
+        "phpstan/extension-installer": "^1.4"
     },
     "autoload": {
         "psr-4": {
-            "Novius\\LaravelTranslatable\\": "src"
+            "Novius\\LaravelTranslatable\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Novius\\LaravelTranslatable\\Tests\\": "tests",
+            "Novius\\LaravelTranslatable\\Tests\\": "tests/",
             "Workbench\\App\\": "workbench/app/",
             "Workbench\\Database\\Factories\\": "workbench/database/factories/",
             "Workbench\\Database\\Seeders\\": "workbench/database/seeders/"
         }
     },
     "scripts": {
-        "test": [
-            "vendor/bin/pest --colors=always"
-        ],
-        "cs-fix": [
-            "./vendor/bin/pint -v"
-        ],
-        "lint": [
-            "@composer cs-fix -- --test"
-        ],
-        "phpstan": [
-            "vendor/bin/phpstan analyse -c phpstan.dist.neon --memory-limit 1G"
-        ],
         "post-autoload-dump": [
             "@clear",
             "@prepare"
         ],
-        "clear": "@php vendor/bin/testbench package:purge-skeleton --ansi",
-        "prepare": "@php vendor/bin/testbench package:discover --ansi",
-        "build": "@php vendor/bin/testbench workbench:build --ansi",
+        "prepare": [
+            "@php vendor/bin/testbench package:discover --ansi"
+        ],
+        "build": [
+            "@php vendor/bin/testbench workbench:build --ansi"
+        ],
         "serve": [
             "Composer\\Config::disableProcessTimeout",
             "@build",
             "@php vendor/bin/testbench serve --ansi"
+        ],
+        "lint": [
+            "vendor/bin/pint --parallel"
+        ],
+        "lint:check": [
+            "vendor/bin/pint --parallel --test"
+        ],
+        "analyse": [
+            "vendor/bin/phpstan analyse --memory-limit 1G"
+        ],
+        "test:unit": [
+            "@php vendor/bin/pest"
+        ],
+        "test": [
+            "@lint:check",
+            "@analyse",
+            "@test:unit"
+        ],
+        "clear": [
+            "@php vendor/bin/testbench package:purge-skeleton --ansi"
         ]
-    },
-    "config": {
-        "sort-packages": true,
-        "allow-plugins": {
-            "pestphp/pest-plugin": true
-        }
     },
     "extra": {
         "laravel": {
@@ -85,5 +91,14 @@
                 "Novius\\LaravelTranslatable\\LaravelTranslatableServiceProvider"
             ]
         }
-    }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "phpstan/extension-installer": true,
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }

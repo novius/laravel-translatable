@@ -196,7 +196,7 @@ trait Translatable
      */
     public function getLocaleColumn(): string
     {
-        trigger_error('getLocaleColumn() is deprecated since version 1.2 and will be removed in 2.0. Use translatableConfig()->locale_column instead.', E_USER_DEPRECATED);
+        trigger_error('getLocaleColumn() is deprecated since version 2.0 and will be removed in 3.0. Use translatableConfig()->locale_column instead.', E_USER_DEPRECATED);
 
         return $this->translatableConfig()->locale_column;
     }
@@ -206,7 +206,7 @@ trait Translatable
      */
     public function getLocaleParentIdColumn(): string
     {
-        trigger_error('getLocaleParentIdColumn() is deprecated since version 1.2 and will be removed in 2.0. Use translatableConfig()->locale_parent_id_column instead.', E_USER_DEPRECATED);
+        trigger_error('getLocaleParentIdColumn() is deprecated since version 2.0 and will be removed in 3.0. Use translatableConfig()->locale_parent_id_column instead.', E_USER_DEPRECATED);
 
         return $this->translatableConfig()->locale_parent_id_column;
     }

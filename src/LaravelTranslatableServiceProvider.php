@@ -11,12 +11,18 @@ class LaravelTranslatableServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $packageDir = dirname(__DIR__);
+
         $this->configureMacros();
-        $this->loadTranslationsFrom(__DIR__.'/../lang', 'translatable');
+        $this->loadTranslationsFrom($packageDir.'/lang', 'translatable');
+
+        if (! $this->app->runningInConsole()) {
+            return;
+        }
 
         $this->publishes([
-            __DIR__.'/../lang' => $this->app->langPath('vendor/translatable'),
-        ]);
+            $packageDir.'/lang' => $this->app->langPath('vendor/translatable'),
+        ], ['lang', 'laravel-translatable-lang']);
     }
 
     protected function configureMacros(): void

@@ -21,6 +21,7 @@ workbench:
     api: false
     commands: false
     components: false
+    factories: true
     views: false
   build:
     - asset-publish

@@ -1,6 +1,6 @@
 # Laravel Translatable
 
-[![Novius CI](https://github.com/novius/laravel-translatable/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/novius/laravel-translatable/actions/workflows/main.yml)
+[![Tests](https://github.com/novius/laravel-translatable/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/novius/laravel-translatable/actions/workflows/tests.yml)
 [![Packagist Release](https://img.shields.io/packagist/v/novius/laravel-translatable.svg?maxAge=1800&style=flat-square)](https://packagist.org/packages/novius/laravel-translatable)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](http://www.gnu.org/licenses/agpl-3.0)
 
@@ -25,7 +25,7 @@ composer require novius/laravel-translatable
 You can publish lang files:
 
 ```bash
-php artisan vendor:publish --provider="Novius\\LaravelTranslatable\\LaravelTranslatableServiceProvider" --tag=lang
+php artisan vendor:publish --tag=laravel-translatable-lang
 ```
 
 ## Usage
@@ -104,11 +104,13 @@ You can override the `translatableConfig` method of the trait if you want to cus
 ```php
 namespace App\Models;
 
-use \Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Model;
+use Novius\LaravelTranslatable\Support\TranslatableModelConfig;
 use Novius\LaravelTranslatable\Traits\Translatable;
 
 class Post extends Model {
-    // ...
+    use Translatable;
+
     public function translatableConfig(): TranslatableModelConfig
     {
         return new TranslatableModelConfig(
@@ -139,19 +141,29 @@ class Post extends Model {
 }
 ```
 
-### Testing
+## Testing
+
+Run the linter, the static analysis and the tests with:
 
 ```bash
-composer run test
+composer test
 ```
 
-## CS Fixer
+## Lint
 
 Lint your code with Laravel Pint using:
 
 ```bash
-composer run cs-fix
+composer lint
 ```
+
+## Changelog
+
+Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+
+## Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING](.github/CONTRIBUTING.md) for details.
 
 ## Licence
 
