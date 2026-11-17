@@ -5,7 +5,14 @@ All notable changes to `novius/laravel-translatable` will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased](https://github.com/novius/laravel-translatable/compare/2.1.0...HEAD)
+## [Unreleased](https://github.com/novius/laravel-translatable/compare/2.1.1...HEAD)
+
+## [2.1.1](https://github.com/novius/laravel-translatable/compare/2.1.0...2.1.1) - 2026-11-17
+
+### Fixed
+
+- The examples of the README and of the Boost skill name the foreign key of the `commonRecord()` relation
+  (`product_common_id`): guessed from the name of the method, it would be `common_record_id`.
 
 ## [2.1.0](https://github.com/novius/laravel-translatable/compare/2.0.2...2.1.0) - 2026-11-17
 
