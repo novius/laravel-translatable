@@ -54,5 +54,24 @@ abstract class TestCase extends Orchestra
                 $table->softDeletes();
                 $table->translatable();
             });
+
+        $schema = $app['db']->connection()->getSchemaBuilder();
+        $schema->create('product_commons', function (Blueprint $table) {
+            $table->increments('id');
+            $table->unsignedInteger('position')->nullable();
+            $table->timestamps();
+        });
+        foreach (['products', 'soft_deletable_products'] as $tableName) {
+            $schema->create($tableName, function (Blueprint $table) use ($tableName) {
+                $table->increments('id');
+                $table->string('title');
+                $table->unsignedInteger('product_common_id')->nullable();
+                $table->timestamps();
+                if ($tableName === 'soft_deletable_products') {
+                    $table->softDeletes();
+                }
+                $table->translatable();
+            });
+        }
     }
 }

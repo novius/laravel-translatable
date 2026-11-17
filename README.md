@@ -154,6 +154,136 @@ class Post extends Model {
 }
 ```
 
+#### Common record and translations
+
+When a model has much data shared by all the locales and a few translated texts, one row per locale duplicates the
+shared data. Split it in two models: the translatable model keeps the name of the content and holds the texts of each
+locale (`Product`, one row per locale), a common record holds the rest (`ProductCommon`, one row for all the locales).
+
+```php
+Schema::create('product_commons', function (Blueprint $table) {
+    $table->id();
+    $table->string('image')->nullable();
+    $table->unsignedInteger('position')->nullable();
+    $table->timestamps();
+});
+
+Schema::create('products', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('product_common_id')->constrained();
+    $table->string('title');
+    $table->string('slug');
+    $table->timestamps();
+    $table->translatable();
+});
+```
+
+```php
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Novius\LaravelTranslatable\Traits\HasCommonRecord;
+use Novius\LaravelTranslatable\Traits\IsCommonRecord;
+use Novius\LaravelTranslatable\Traits\Translatable;
+
+class Product extends Model
+{
+    /** @use HasCommonRecord<ProductCommon> */
+    use HasCommonRecord;
+    use Translatable;
+
+    /**
+     * @return BelongsTo<ProductCommon, $this>
+     */
+    public function commonRecord(): BelongsTo
+    {
+        return $this->belongsTo(ProductCommon::class);
+    }
+
+    // The common record of an original created without one: saved by the package if it is not yet
+    protected function createCommonRecord(): Model
+    {
+        return new ProductCommon;
+    }
+}
+
+class ProductCommon extends Model
+{
+    /** @use IsCommonRecord<Product> */
+    use IsCommonRecord;
+
+    /**
+     * @return HasMany<Product, $this>
+     */
+
+    public function translations(): HasMany
+    {
+        return $this->hasMany(Product::class);
+    }
+
+    // The attribute of the translations that labels the common record
+    public function commonRecordLabelAttribute(): string
+    {
+        return 'title';
+    }
+}
+```
+
+`HasCommonRecord`, on the translatable model:
+
+* A translation created with the key of its parent in `locale_parent_id`, and without common record, gets the common
+  record of its parent (as the back office creates a translation). `translate()` keeps it too.
+* An original created without common record gets the one returned by `createCommonRecord()` (abstract), saved by the
+  package if it is not yet: fill there the required columns of the common table. A model created with a parent not
+  found, or soft deleted, is not a translation: it gets a new common record too. A form saving the common record after
+  the model (a Filament `relationship('commonRecord')`, for instance) updates this one.
+* All the translations of a group share the same common record, and a common record belongs to one group only: a
+  model created or updated otherwise throws a `TranslatableException`, before being saved. A group without common
+  record (data prior to the trait) is accepted: its new translations get none. To change the
+  common record of a translated group, update all its models in one query, which fires no model event (the former
+  common record is not deleted):
+  `Product::query()->where('locale_parent_id', $product->locale_parent_id)->update(['product_common_id' => $id])`.
+* The common record is deleted when no model holds it any more: with its last translation, or when the last model
+  holding it changes of common record. For a soft deletable model, only when the last translation is force deleted: a
+  trashed translation can be restored with its common record. Override `deletesCommonRecordWithLastTranslation()` to
+  return `false` to keep the common record. Models deleted with a query (`Product::query()->…->delete()`, a Filament
+  `DeleteBulkAction` with `fetchSelectedRecords(false)`, a database cascade) fire no model event: their common record
+  is not deleted.
+* `commonRecordKeyName()` gives the name of the foreign key, read from the `commonRecord()` relationship.
+
+`IsCommonRecord`, on the common record:
+
+* `translation(string $locale)` gives the translation in the locale, read in the `translations` relation.
+* `label()` gives the attribute named by `commonRecordLabelAttribute()` (abstract: the package does not create it) of
+  the translation in the current locale, else in the fallback locale of the application, else of any translation, else
+  `#<key>`.
+* A common record holding translations, soft deleted included, cannot be deleted: it throws a `TranslatableException`.
+  Delete its translations: the last one deletes it.
+
+#### Factories
+
+In the factory of a translatable model, the `MakesTranslations` trait makes a translation of a model, in its group,
+and sharing its common record with `HasCommonRecord`:
+
+```php
+use Novius\LaravelTranslatable\Factories\MakesTranslations;
+
+class ProductFactory extends Factory
+{
+    use MakesTranslations;
+
+    public function definition(): array
+    {
+        return [
+            'title' => fake()->words(2, true),
+            'locale' => 'fr',
+        ];
+    }
+}
+
+$english = Product::factory()->translationOf($french, 'en')->create(['title' => 'Blind']);
+```
+
 ## Testing
 
 Run the linter, the static analysis and the tests with:

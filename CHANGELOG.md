@@ -15,6 +15,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The lang files are published with the `lang` and `laravel-translatable-lang` tags: the `--tag=lang` documented in the
   README published nothing.
 - A Laravel Boost skill, `laravel-translatable-development`, to help agents use the package in Laravel applications.
+- Common record and translations: the `HasCommonRecord` trait, on a translatable model whose data shared by all the
+  locales is held by a common record (`Product`), and the `IsCommonRecord` trait, on that common record
+  (`ProductCommon`). A translation created with its parent's key and no common record gets the one of its parent; all
+  the translations of a group share the same common record (or none), and a common record belongs to one group only,
+  otherwise saving throws a `TranslatableException`; an original created without common record gets the one returned
+  by the abstract `createCommonRecord()`; the common record is deleted when no model holds it any more (force
+  deleted, for a soft deletable model), unless `deletesCommonRecordWithLastTranslation()` returns `false`, and cannot be
+  deleted while it holds translations. The common record gives `translation($locale)` and `label()`, which reads the
+  attribute of the translations named by the abstract `commonRecordLabelAttribute()`. The `MakesTranslations`
+  factory trait makes a translation of a model, sharing its common record with `HasCommonRecord`
+  (`translationOf($parent, $locale)`).
 
 ### Changed
 

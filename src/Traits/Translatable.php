@@ -41,6 +41,7 @@ trait Translatable
                 throw new TranslatableException(trans('translatable::messages.locale_forbidden'));
             }
 
+            $parent = null;
             if ($locale_parent_id) {
                 $parent = $model::find($locale_parent_id);
                 if ($parent === null) {
@@ -62,6 +63,13 @@ trait Translatable
 
                     $model->translateAttributes($parent);
                 }
+            }
+
+            // Here rather than in a creating listener of HasCommonRecord: the group must be resolved first, and the
+            // listeners run in the order the traits boot, which Pint and Laravel 13 decide
+            if (in_array(HasCommonRecord::class, class_uses_recursive($model), true)) {
+                // PHPStan does not narrow the type on a trait used
+                $model->prepareCommonRecordOnCreating($parent); // @phpstan-ignore method.notFound
             }
         });
         static::created(static function (Model $model) {
