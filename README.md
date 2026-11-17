@@ -62,7 +62,7 @@ This trait adds:
 * A relation `translations` containing all translations of the model
 * A relation `translationsWithDeleted` containing all translations of the model, including those in trash if your model use SoftDelete trait 
 * A function `translate(string $locale, array $translateAttributes = [])` to translate a model in a new locale
-* A function `getTranslation(string $locale, bool $withDeleted = false)` returning the translated model in specified locale or null if it doesn't exist.
+* A function `getTranslation(string $locale, bool $withDeleted = false)` returning the translated model in specified locale or null if it doesn't exist. It reads the `translations` (or `translationsWithDeleted`) relation, loaded by the first call and reused by the following ones (see below).
 * A scope `withLocale($locale)` on the query
 * A scope `originals()` on the query, keeping only the original models: those not translated, and the root of each group of translations
 * A function `isOriginal()` telling whether the model is an original
@@ -74,6 +74,17 @@ then contains the whole group, the model included. A model not translated has a 
 A translation can also be created with the key of its parent in `locale_parent_id`
 (`Post::create(['locale' => 'en', 'locale_parent_id' => $post->id, ...])`): the parent is then updated in the database,
 not an instance of it already in memory. Call `$post->refresh()` before reading its `locale_parent_id` or `translations`.
+
+`getTranslation()` loads the `translations` relation (`translationsWithDeleted` with `$withDeleted`) once, then reads it:
+call it in a loop on models loaded with `->with('translations')` without any query. Translations created, updated or
+deleted afterwards in the same request, by another instance, are not seen. Unset the relation to read them again:
+
+```php
+$post->unsetRelation('translations');
+$post->unsetRelation('translationsWithDeleted');
+```
+
+`translate()` unsets them itself, and checks in the database that the locale is not already translated.
 
 Deleting the original of a group of translations breaks the group: with the foreign key of the `translatable()` migration
 macro (`on delete set null`), its translations lose their `locale_parent_id` and become originals not translated. A

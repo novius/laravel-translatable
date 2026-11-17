@@ -46,7 +46,7 @@ trait Translatable
                 if ($parent === null) {
                     $model->{$localeParentIdColumn} = null;
                 } else {
-                    $translation = $model->getTranslation($locale, true);
+                    $translation = $model->findTranslationInDatabase($locale);
                     if ($translation !== null) {
                         if (in_array(SoftDeletes::class, class_uses_recursive($model), true) && $translation->{$model->getDeletedAtColumn()}) {
                             throw new TranslatableException(trans('translatable::messages.translation_deleted_exist'));
@@ -67,6 +67,10 @@ trait Translatable
         static::created(static function (Model $model) {
             /** @var static $model */
             $localeParentIdColumn = $model->translatableConfig()->locale_parent_id_column;
+
+            // Relations copied by replicate() from the model translated: they showed the group without the new model
+            $model->unsetRelation('translations');
+            $model->unsetRelation('translationsWithDeleted');
 
             if ($model->parentToSave !== null) {
                 $model->parentToSave->{$localeParentIdColumn} = $model->{$localeParentIdColumn};
@@ -135,7 +139,7 @@ trait Translatable
         $localeParentIdColumn = $this->translatableConfig()->locale_parent_id_column;
 
         if (! empty($this->{$localeParentIdColumn})) {
-            $translation = $this->getTranslation($locale);
+            $translation = $this->findTranslationInDatabase($locale);
             if ($translation !== null) {
                 if (in_array(SoftDeletes::class, class_uses_recursive($this), true) && $translation->{$this->getDeletedAtColumn()}) {
                     throw new TranslatableException(trans('translatable::messages.translation_deleted_exist'));
@@ -179,16 +183,21 @@ trait Translatable
         return $translatedItem;
     }
 
+    /**
+     * Reads the translations relation, loaded by the first call and reused by the following ones. Translations created,
+     * updated or deleted since in the same request are not seen: unset the relation to read them again.
+     */
     public function getTranslation(string $locale, bool $withDeleted = false): ?static
     {
         if ($this->{$this->translatableConfig()->locale_parent_id_column} === null) {
             $translations = new Collection([$this]);
         } else {
-            $translations = $withDeleted ? $this->translationsWithDeleted() : $this->translations();
+            $relation = $withDeleted ? 'translationsWithDeleted' : 'translations';
+            // loadMissing() rather than the property: a lazy loading violation is not thrown when it is prevented
+            $translations = $this->loadMissing($relation)->getRelation($relation);
         }
 
-        // @phpstan-ignore-next-line
-        return $translations->where($this->translatableConfig()->locale_column, $locale)->first();
+        return $translations->firstWhere($this->translatableConfig()->locale_column, $locale);
     }
 
     /**
@@ -209,6 +218,18 @@ trait Translatable
         trigger_error('getLocaleParentIdColumn() is deprecated since version 2.0 and will be removed in 3.0. Use translatableConfig()->locale_parent_id_column instead.', E_USER_DEPRECATED);
 
         return $this->translatableConfig()->locale_parent_id_column;
+    }
+
+    /**
+     * The translation in the locale, soft deleted included, read in the database: the relations loaded may be out of
+     * date, and the checks against a translation already existing must not rely on them.
+     */
+    protected function findTranslationInDatabase(string $locale): ?static
+    {
+        /** @var ?static */
+        return $this->translationsWithDeleted()
+            ->where($this->qualifyColumn($this->translatableConfig()->locale_column), $locale)
+            ->first();
     }
 
     protected function translateAttributes($parent): void

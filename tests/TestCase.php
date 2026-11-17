@@ -43,5 +43,16 @@ abstract class TestCase extends Orchestra
                 $table->timestamps();
                 $table->translatable('lang', 'lang_parent_id');
             });
+
+        $app['db']
+            ->connection()
+            ->getSchemaBuilder()
+            ->create('soft_deletable_translatable_models', function (Blueprint $table) {
+                $table->increments('id');
+                $table->string('title');
+                $table->timestamps();
+                $table->softDeletes();
+                $table->translatable();
+            });
     }
 }

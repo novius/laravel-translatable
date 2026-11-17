@@ -16,7 +16,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   README published nothing.
 - A Laravel Boost skill, `laravel-translatable-development`, to help agents use the package in Laravel applications.
 
+### Changed
+
+- `getTranslation()` reads the `translations` relation (`translationsWithDeleted` with `$withDeleted`), loaded by its first
+  call, instead of querying the database on each call: one query per model whatever the number of calls, none when the
+  relation is eager loaded. It does not throw a lazy loading violation when lazy loading is prevented.
+  **Upgrade note**: translations created, updated or deleted afterwards in the same request, by another instance, are
+  no longer seen. Call `unsetRelation('translations')` and `unsetRelation('translationsWithDeleted')` to read them again.
+
 ### Fixed
+
+- `translate()` checks in the database, soft deleted translations included, that the locale is not already translated:
+  a soft deleted translation was only detected by the `creating` event, after the attributes were translated.
+- A model created as a translation unloads the `translations` and `translationsWithDeleted` relations copied by
+  `replicate()` from the model translated: they showed the group without it.
 
 - `translate()` unloads the `translations` and `translationsWithDeleted` relations of the model and of its new
   translation: loaded before, they no longer showed the group of translations.

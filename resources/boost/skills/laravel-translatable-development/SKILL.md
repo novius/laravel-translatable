@@ -87,16 +87,22 @@ $post->isOriginal();
   call `$parent->refresh()` before reading its `locale_parent_id` or `translations`.
 - Deleting the original breaks the group: its translations lose their `locale_parent_id`.
 - `translate()` and creation throw `TranslatableException` when the locale is not available or already translated.
+- `getTranslation()` loads the `translations` (or `translationsWithDeleted`) relation once and reuses it: translations
+  created, updated or deleted afterwards in the same request are not seen. Call `$post->unsetRelation('translations')`
+  (and `'translationsWithDeleted'`) to read them again.
 
 ## Examples
 
 - Add a French/English blog: add `$table->translatable()` to the posts migration, use the trait, create the French
   post, then `$post->translate('en', [...])`.
 - List the posts of the current locale: `Post::query()->withLocale(app()->getLocale())->get()`.
+- Link each post of a list to its translation without a query per post:
+  `Post::query()->withLocale('fr')->with('translations')->get()`, then `$post->getTranslation('en')` in the loop.
 - Build a back office list with one line per group: `Post::query()->originals()->with('translations')->get()`.
 
 ## Anti-patterns
 
 - Hard-coding the `locale` and `locale_parent_id` column names when the model overrides `translatableConfig()`.
 - Reading `translations` on a parent instance loaded before a translation was created with `create()`.
+- Calling `getTranslation()` after changing translations in the same request without unsetting the relation first.
 - Creating translations by copying rows by hand instead of `translate()`, which checks the locale and the group.
