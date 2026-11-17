@@ -14,6 +14,8 @@ A package for making Laravel Eloquent models "translatable" using two fields: `l
 - Laravel: 10.x, 11.x, 12.x, 13.x
 - PHP: 8.2 – 8.5
 
+Only Laravel 12.x and 13.x are tested: every release of Laravel 10.x and 11.x has a known security vulnerability.
+
 ## Installation
 
 You can install the package via composer:

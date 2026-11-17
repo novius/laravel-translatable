@@ -12,6 +12,10 @@ metadata:
 
 Keep package code, dependencies, and workflows compatible with the supported Laravel 10 to 13 and PHP 8.2+ matrix.
 
+The CI only tests Laravel 12 and 13: every release of Laravel 10 and 11 has a known security advisory. Keep Laravel 10
+and 11 in the `composer.json` constraints, so old applications still get the fixes, and avoid the Laravel APIs they
+lack.
+
 ## Workflow
 
 1. Read `composer.json` first to determine PHP, Laravel, and Testbench constraints.

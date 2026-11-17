@@ -1,6 +1,6 @@
 ---
 name: package-testing
-description: "Use this skill when writing, editing, fixing, or reviewing package tests with Pest (2 with Laravel 10, 3 otherwise) and Orchestra Testbench, including TDD, feature tests, unit tests, type coverage, arch tests, workbench behavior, commands, routes, config, migrations, and publishable resources."
+description: "Use this skill when writing, editing, fixing, or reviewing package tests with Pest 3 and Orchestra Testbench, including TDD, feature tests, unit tests, type coverage, arch tests, workbench behavior, commands, routes, config, migrations, and publishable resources."
 license: MIT
 metadata:
   author: laravel
