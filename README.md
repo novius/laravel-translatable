@@ -197,7 +197,8 @@ class Product extends Model
      */
     public function commonRecord(): BelongsTo
     {
-        return $this->belongsTo(ProductCommon::class);
+        // Name the foreign key: guessed from the name of the method, it would be common_record_id
+        return $this->belongsTo(ProductCommon::class, 'product_common_id');
     }
 
     // The common record of an original created without one: saved by the package if it is not yet
