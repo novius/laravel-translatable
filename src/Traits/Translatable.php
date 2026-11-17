@@ -98,7 +98,31 @@ trait Translatable
 
     public function scopeWithLocale(Builder $query, ?string $locale): Builder
     {
-        return $query->where('locale', $locale);
+        return $query->where($this->qualifyColumn($this->translatableConfig()->locale_column), $locale);
+    }
+
+    /**
+     * Only the original models: those not translated, and the root of each group of translations. Once translated,
+     * the root holds its own key in the locale parent id column, like its translations.
+     */
+    public function scopeOriginals(Builder $query): Builder
+    {
+        $localeParentIdColumn = $this->qualifyColumn($this->translatableConfig()->locale_parent_id_column);
+
+        return $query->where(fn (Builder $query) => $query
+            ->whereNull($localeParentIdColumn)
+            ->orWhereColumn($localeParentIdColumn, $this->getQualifiedKeyName()));
+    }
+
+    /**
+     * Whether the model is an original: not translated, or the root of its group of translations.
+     */
+    public function isOriginal(): bool
+    {
+        $localeParentId = $this->{$this->translatableConfig()->locale_parent_id_column};
+
+        // The key is cast by Eloquent, the locale parent id is not: compare them as strings, whatever the driver returns
+        return $localeParentId === null || (string) $localeParentId === (string) $this->getKey();
     }
 
     /**
@@ -132,22 +156,25 @@ trait Translatable
         $translatedItem->{$localeColumn} = $locale;
         $translatedItem->{$localeParentIdColumn} = $localeParentId;
 
-        $this->getConnection()->beginTransaction();
-
-        if (! $translatedItem->save()) {
-            $this->getConnection()->rollBack();
-            throw new TranslatableException(trans('translatable::messages.error_during_translation'));
-        }
-
-        if (empty($this->{$localeParentIdColumn})) {
-            $this->{$localeParentIdColumn} = $localeParentId;
-            if (! $this->save()) {
-                $this->getConnection()->rollBack();
+        // Rolled back on any exception, including those thrown by the creating and created events
+        $this->getConnection()->transaction(function () use ($translatedItem, $localeParentIdColumn, $localeParentId) {
+            if (! $translatedItem->save()) {
                 throw new TranslatableException(trans('translatable::messages.error_during_translation'));
             }
-        }
 
-        $this->getConnection()->commit();
+            if (empty($this->{$localeParentIdColumn})) {
+                $this->{$localeParentIdColumn} = $localeParentId;
+                if (! $this->save()) {
+                    throw new TranslatableException(trans('translatable::messages.error_during_translation'));
+                }
+            }
+        });
+
+        // The group of translations changed: relations loaded before (and copied by replicate()) are out of date
+        foreach ([$this, $translatedItem] as $model) {
+            $model->unsetRelation('translations');
+            $model->unsetRelation('translationsWithDeleted');
+        }
 
         return $translatedItem;
     }
